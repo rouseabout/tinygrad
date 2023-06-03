@@ -121,7 +121,10 @@ def uops_to_cstyle(uops:List[UOp], bufs:List[Union[LocalBuffer,LazyBuffer]], lan
       if bufs[args.i] is not None and isinstance(bufs[args.i].realized, RawConst):
         assert newvar.ltype == LocalTypes.float, "const can't be float4"
         # nan? inf?
-        val = f"{bufs[args.i].realized._buf}" + ("f" if not dtypes.is_int(bufs[args.i].dtype) else "")
+        if dtypes.is_int(bufs[args.i].dtype) or dtypes.is_float(bufs[args.i].dtype):
+            val = f"{bufs[args.i].realized._buf}" + ("f" if dtypes.is_float(bufs[args.i].dtype) else "")
+        else:
+            val = f"{int(bufs[args.i].realized._buf)}"
       elif isinstance(bufs[args.i].dtype, ImageDType):
         assert newvar.ltype == LocalTypes.float4, "image must be float4"
         prekernel.add("const sampler_t smp = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST;\n")
